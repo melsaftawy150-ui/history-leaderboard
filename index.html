@@ -1,97 +1,102 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>لوحة الشرف | مستر محمد عبد الفتاح</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة شرف الأوائل - التاريخ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: #0f172a; color: #fff; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 700px; margin: 0 auto; }
+        h1 { color: #f59e0b; font-size: 2.2rem; margin-bottom: 5px; }
+        p.subtitle { color: #94a3b8; margin-bottom: 25px; }
+        
+        .leaderboard { display: flex; flex-direction: column; gap: 12px; }
+        .card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; border-radius: 16px; background: #1e293b;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-3px); }
+        
+        /* ألوان المراكز الأولى الجذابة */
+        .rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: bold; border: 2px solid #fbbf24; }
+        .rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; border: 2px solid #cbd5e1; }
+        .rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: #fff; border: 2px solid #d97706; }
+        
+        .info { display: flex; align-items: center; gap: 15px; }
+        .badge {
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900;
+        }
+        .name { font-size: 1.1rem; font-weight: 700; }
+        .score { font-size: 1.2rem; font-weight: 900; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; }
+        
+        .refresh-btn {
+            background: #3b82f6; color: white; border: none; padding: 10px 20px;
+            border-radius: 10px; font-size: 1rem; cursor: pointer; margin-bottom: 20px; font-weight: bold;
+        }
+        .refresh-btn:hover { background: #2563eb; }
+    </style>
 </head>
-
 <body>
 
-<header>
-
-<h1>🏆 لوحة الشرف</h1>
-
-<p>مستر محمد عبد الفتاح</p>
-
-</header>
-
 <div class="container">
+    <h1>🏆 لوحة شرف الأوائل 🏆</h1>
+    <p class="subtitle">مادة التاريخ - اختبار التقييم التفاعلي</p>
+    
+    <button class="refresh-btn" onclick="fetchLeaderboard()">تحديث النتائج 🔄</button>
 
-<input
-type="text"
-id="search"
-placeholder="🔍 ابحث عن اسم الطالب">
-
-<div id="top3">
-
-<div class="card gold">
-
-<h2>🥇 الأول</h2>
-
-<h3 id="firstName"></h3>
-
-<span id="firstScore"></span>
-
+    <div class="leaderboard" id="leaderboard">
+        <p>جاري تحميل قائمة الأوائل...</p>
+    </div>
 </div>
 
-<div class="card silver">
+<script>
+    // الرابط الخاص بك مدمج ومجهّز مباشرة
+    const API_URL = "https://script.google.com/macros/s/AKfycbzGhWo6ulr0ukfo47ryuZY3tVbg9xuacpUnk-fKv7g2_N_5Tms6NiorsdynqedVbS4/exec";
 
-<h2>🥈 الثاني</h2>
+    async function fetchLeaderboard() {
+        const board = document.getElementById('leaderboard');
+        try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            
+            board.innerHTML = "";
+            
+            if (!data || data.length === 0) {
+                board.innerHTML = "<p>لا توجد نتائج مسجلة حتى الآن.</p>";
+                return;
+            }
 
-<h3 id="secondName"></h3>
+            data.forEach((student, index) => {
+                let rankClass = "";
+                let icon = `#${index + 1}`;
+                
+                if (index === 0) { rankClass = "rank-1"; icon = "🥇"; }
+                else if (index === 1) { rankClass = "rank-2"; icon = "🥈"; }
+                else if (index === 2) { rankClass = "rank-3"; icon = "🥉"; }
 
-<span id="secondScore"></span>
+                const card = `
+                    <div class="card ${rankClass}">
+                        <div class="info">
+                            <div class="badge">${icon}</div>
+                            <div class="name">${student.name}</div>
+                        </div>
+                        <div class="score">${student.rawScore}</div>
+                    </div>
+                `;
+                board.innerHTML += card;
+            });
+        } catch (err) {
+            board.innerHTML = "<p>حدث خطأ أثناء تحميل النتائج. تأكد من إعدادات النشر وخيار Access = Anyone في Apps Script.</p>";
+        }
+    }
 
-</div>
-
-<div class="card bronze">
-
-<h2>🥉 الثالث</h2>
-
-<h3 id="thirdName"></h3>
-
-<span id="thirdScore"></span>
-
-</div>
-
-</div>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>الترتيب</th>
-
-<th>الاسم</th>
-
-<th>الدرجة</th>
-
-</tr>
-
-</thead>
-
-<tbody id="tableBody">
-
-</tbody>
-
-</table>
-
-</div>
-
-<script src="script.js"></script>
+    // تحميل النتائج فور فتح الصفحة
+    fetchLeaderboard();
+</script>
 
 </body>
-
 </html>
